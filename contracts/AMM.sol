@@ -64,4 +64,18 @@ contract AMM {
         totalShares += share;
         shares[msg.sender] += share;
     }
+
+    //Determine how many Token 2 tokens must be deposited when depositing liquidity for Token 1
+    function calculateToken2Deposit(
+        uint256 _token1Amount
+    ) public view returns (uint256 token2Amount) {
+        token2Amount = (token2Balance * _token1Amount) / token1Balance;
+    }
+
+    //Determine how many Token 1 tokens must be deposited when depositing liquidity for Token 2
+    function calculateToken1Deposit(
+        uint256 _token2Amount
+    ) public view returns (uint256 token1Amount) {
+        token1Amount = (token1Balance * _token2Amount) / token2Balance;
+    }
 }

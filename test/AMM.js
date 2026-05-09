@@ -94,15 +94,19 @@ describe("Token", () => {
           .connect(liquidityProvider)
           .approve(amm.address, amount);
         await transaction.wait();
+
+        // Calculate token2 depot smount
+        let token2Deposit = await amm.calculateToken2Deposit(amount);
+
         transaction = await amm
           .connect(liquidityProvider)
-          .addLiquidity(amount, amount);
+          .addLiquidity(amount, token2Deposit);
         await transaction.wait();
 
         // Check deployer has 100 shares
         expect(await amm.shares(deployer.address)).to.equal(tokens(100)); // use tokens to calculate shares
 
-        // Check pool has 100 shares
+        // Check pool has 150 shares
         expect(await amm.totalShares()).to.equal(tokens(150));
 
         /////////////////////////////////////////////
