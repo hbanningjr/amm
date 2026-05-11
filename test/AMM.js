@@ -4,6 +4,9 @@ const { ethers } = require("hardhat");
 const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), "ether");
 };
+const shares = (n) => {
+  return ethers.utils.parseUnits(n.toString(), "ether");
+};
 
 const ether = tokens;
 
@@ -315,6 +318,116 @@ describe("Token", () => {
             balance,
           )}\n`,
         );
+
+        // Estimate amount of tokens investor2 will receive after swapping token2
+        estimate = await amm.calculateToken2Swap(tokens(1));
+        console.log(
+          `Token1 Amount investor2 will receive after swap: ${ethers.utils.formatEther(
+            estimate,
+          )}\n`,
+        );
+
+        // Investor 2 swaps 1 token
+        transaction = await amm.connect(investor2).swapToken2(tokens(1));
+        await transaction.wait();
+
+        // Check swap event
+        await expect(transaction)
+          .to.emit(amm, "Swap")
+          .withArgs(
+            investor2.address,
+            token2.address,
+            tokens(1),
+            token1.address,
+            estimate,
+            await amm.token1Balance(),
+            await amm.token2Balance(),
+            (
+              await ethers.provider.getBlock(
+                await ethers.provider.getBlockNumber(),
+              )
+            ).timestamp,
+          );
+        // Check investor2 balance after swap
+        balance = await token1.balanceOf(investor2.address);
+        console.log(
+          `Investor2 Token 1 balance after swap: ${ethers.utils.formatEther(
+            balance,
+          )}\n`,
+        );
+        expect(estimate).to.equal(balance);
+
+        // Check AMM token balances are in sync
+        expect(await token1.balanceOf(amm.address)).to.equal(
+          await amm.token1Balance(),
+        );
+        expect(await token2.balanceOf(amm.address)).to.equal(
+          await amm.token2Balance(),
+        );
+
+        // Check price after swapping
+        console.log(
+          `Price: ${
+            (await amm.token2Balance()) / (await amm.token1Balance())
+          } \n`,
+        );
+        ///////////////////////////////////////////////
+        // Removing Liquidity
+        //
+        console.log(
+          `AMM Token1 Balance: ${ethers.utils.formatEther(
+            await amm.token1Balance(),
+          )}\n`,
+        );
+        console.log(
+          `AMM Token2 Balance: ${ethers.utils.formatEther(
+            await amm.token2Balance(),
+          )}\n`,
+        );
+
+        // Check LP balance before removing tokens
+        balance = await token1.balanceOf(liquidityProvider.address);
+        console.log(
+          `Liquidity Provider Token1 balance before removing funds: ${ethers.utils.formatEther(
+            balance,
+          )} \n`,
+        );
+
+        balance = await token2.balanceOf(liquidityProvider.address);
+        console.log(
+          `Liquidity Provider Token2 balance before removing funds: ${ethers.utils.formatEther(
+            balance,
+          )} \n`,
+        );
+
+        // LP removes tokens from AMM pool
+        transaction = await amm
+          .connect(liquidityProvider)
+          .removeLiquidity(shares(50)); // 50 shares
+        await transaction.wait();
+
+        // Check LP balances after removing funds
+        balance = await token1.balanceOf(liquidityProvider.address);
+        console.log(
+          `Liquidity Provider Token1 balance after removing funds: ${ethers.utils.formatEther(
+            balance,
+          )} \n`,
+        );
+
+        balance = await token2.balanceOf(liquidityProvider.address);
+        console.log(
+          `Liquidity Provider Token2 balance after removing funds: ${ethers.utils.formatEther(
+            balance,
+          )} \n`,
+        );
+        // LP should have 0 shares
+        expect(await amm.shares(liquidityProvider.address)).to.equal(shares(0));
+
+        // Deployer should have 100 shares
+        expect(await amm.shares(deployer.address)).to.equal(shares(100));
+
+        // AMM Pool has 100 total shares
+        expect(await amm.totalShares()).to.equal(shares(100));
       });
     });
   });
