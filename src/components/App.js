@@ -7,29 +7,31 @@ import { ethers } from "ethers";
 import Navigation from "./Navigation";
 import Loading from "./Loading";
 
-import { loadAccount, loadProvider, loadNetwork } from "../store/interactions";
-
-// ABIs: Import your contract ABIs here
-// import TOKEN_ABI from '../abis/Token.json'
-
-// Config: Import your network config here
-// import config from '../config.json';
+import {
+  loadAccount,
+  loadProvider,
+  loadNetwork,
+  loadTokens,
+  loadAMM,
+} from "../store/interactions";
 
 function App() {
-  const [account, setAccount] = useState("0x0...");
-  const [balance, setBalance] = useState("0");
-  const [isLoading, setIsLoading] = useState(true);
-
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+  const [balance, setBalance] = useState("0");
 
   const loadBlockchainData = async () => {
     // Initiate provider
     const provider = await loadProvider(dispatch);
 
-    await loadNetwork(provider, dispatch);
+    const chainId = await loadNetwork(provider, dispatch);
 
     // Fetch accounts
     await loadAccount(dispatch);
+
+    // Intiate contracts
+    await loadTokens(provider, chainId, dispatch);
+    await loadAMM(provider, chainId, dispatch);
 
     setIsLoading(false);
   };
