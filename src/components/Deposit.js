@@ -12,8 +12,6 @@ import Alert from "./Alert";
 
 import { addLiquidity, loadBalances } from "../store/interactions";
 
-const account = null;
-
 const Deposit = () => {
   const [token1Amount, setToken1Amount] = useState(0);
   const [token2Amount, setToken2Amount] = useState(0);
