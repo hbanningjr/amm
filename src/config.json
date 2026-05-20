@@ -1,13 +1,13 @@
 {
   "31337": {
     "dappu": {
-      "address": "0xc5a5C42992dECbae36851359345FE25997F5C42d"
+      "address": "0x02b0B4EFd909240FCB2Eb5FAe060dC60D112E3a4"
     },
     "usd": {
-      "address": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933"
+      "address": "0x638A246F0Ec8883eF68280293FFE8Cfbabe61B44"
     },
     "amm": {
-      "address": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E"
+      "address": "0x6C2d83262fF84cBaDb3e416D527403135D757892"
     }
   }
 }

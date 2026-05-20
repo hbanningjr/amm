@@ -42,6 +42,7 @@ contract AMM {
         uint256 _token2Amount
     ) external {
         // Deposit Tokens
+
         require(
             token1.transferFrom(msg.sender, address(this), _token1Amount),
             "failed to transfer token 1"
@@ -60,10 +61,10 @@ contract AMM {
         } else {
             uint256 share1 = (totalShares * _token1Amount) / token1Balance;
             uint256 share2 = (totalShares * _token2Amount) / token2Balance;
-            require(
-                ((share1 / 1) * 10 ** 3) == ((share2 / 1) * 10 ** 3),
-                "must provide equal token amounts"
-            );
+            //require(
+            //((share1 / 1) * 10 ** 1) == ((share2 / 1) * 10 ** 1),
+            //   "must provide equal token amounts"
+
             share = share1;
         }
 
